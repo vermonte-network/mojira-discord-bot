@@ -8,6 +8,7 @@ import ErrorEventHandler from './events/ErrorEventHandler';
 import MessageEventHandler from './events/MessageEventHandler';
 import AddReactionEventHandler from './events/AddReactionEventHandler';
 import RemoveReactionEventHandler from './events/RemoveReactionEventHandler';
+import DisconnectEventHandler from './events/DisconnectEventHandler';
 
 /**
  * Core class of MojiraBot
@@ -41,6 +42,7 @@ export default class MojiraBot {
 			// Register events.
 			EventRegistry.setClient( this.client );
 			EventRegistry.add( new ErrorEventHandler() );
+			EventRegistry.add( new DisconnectEventHandler() );
 			EventRegistry.add( new MessageEventHandler( this.client.user.id ) );
 
 			const rolesChannel = this.client.channels.get( BotConfig.rolesChannel );
@@ -81,6 +83,13 @@ export default class MojiraBot {
 			} );
 		} catch ( err ) {
 			this.logger.error( `MojiraBot could not be started: ${ err }` );
+		}
+	}
+
+	public static async reconnect(): Promise<void> {
+		const loginResult = await BotConfig.login( this.client );
+		if ( !loginResult ) {
+			MojiraBot.logger.error( 'MojiraBot was unable to reconnect' );
 		}
 	}
 
