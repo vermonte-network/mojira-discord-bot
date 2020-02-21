@@ -1,5 +1,7 @@
-import { Client } from 'discord.js';
+import { Client, Guild } from 'discord.js';
+import GuildConfig from './GuildConfig';
 import MojiraBot from './MojiraBot';
+import Sqlite3 = require( 'better-sqlite3' );
 
 export interface RoleConfig {
 	emoji: string;
@@ -20,9 +22,9 @@ export default class BotConfig {
 	private static token: string;
 	public static owner: string;
 
-	// Add map of id => GuildConfiguration here later
-	// These three settings will be moved over to `GuildConfiguration` later
-	public static homeChannel: string;
+	public static debugChannel: string;
+
+	// These three settings will be moved over to `GuildConfig` later
 	public static rolesChannel: string;
 	public static rolesMessage: string;
 	public static requestChannels: string[];
@@ -38,6 +40,10 @@ export default class BotConfig {
 
 	public static filterFeedInterval: number;
 	public static filterFeeds: FilterFeedConfig[];
+
+	public static guildConfigs = new Map<string, GuildConfig>();
+
+	public static database: Sqlite3.Database;
 
 	// projects etc
 	// wrapper class for settings.json
@@ -57,7 +63,7 @@ export default class BotConfig {
 		this.owner = settings.owner;
 
 		if ( !settings.home_channel ) throw 'Home channel is not set';
-		this.homeChannel = settings.home_channel;
+		this.debugChannel = settings.home_channel;
 
 		if ( !settings.roles_channel ) throw 'Roles channel is not set';
 		this.rolesChannel = settings.roles_channel;
@@ -87,6 +93,18 @@ export default class BotConfig {
 
 		if ( !settings.filter_feeds ) throw 'Filter feeds are not set';
 		this.filterFeeds = settings.filter_feeds;
+
+		this.database = new Sqlite3( './db.sqlite' );
+		GuildConfig.setup();
+	}
+
+	public static getGuildConfig( guild: Guild ): GuildConfig {
+		if ( !this.guildConfigs.has( guild.id ) ) {
+			console.log( `Creating new config for guild ${ guild.name } (${ guild.id })` );
+			this.guildConfigs.set( guild.id, GuildConfig.create( guild ) );
+		}
+
+		return this.guildConfigs.get( guild.id );
 	}
 
 	public static async login( client: Client ): Promise<boolean> {
