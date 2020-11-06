@@ -13,18 +13,21 @@
     "bot": "tsc && node bin",
     "build": "tsc",
     "validate": "tsc --noEmit",
-    "lint": "eslint **/*.ts",
-    "lintfix": "eslint **/*.ts --fix"
+    "lint": "eslint src/**/*.ts",
+    "lintfix": "eslint src/**/*.ts --fix"
   },
   "dependencies": {
-    "discord.js": "^11.6.4",
+    "config": "^3.3.1",
+    "discord.js": "^12.2.0",
     "jira-connector": "^3.1.0",
+    "js-yaml": "^3.14.0",
     "log4js": "^6.1.2",
     "moment": "^2.24.0",
-    "node-fetch": "^2.6.0",
+    "node-fetch": "^2.6.1",
     "typescript": "^3.8.3"
   },
   "devDependencies": {
+    "@types/config": "0.0.36",
     "@types/emoji-regex": "^8.0.0",
     "@types/node": "^12.12.35",
     "@types/node-fetch": "^2.5.7",
